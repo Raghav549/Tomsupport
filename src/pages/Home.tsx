@@ -1,265 +1,411 @@
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Cpu, Shield, Eye, Brain, Mic, Smartphone, Globe, Layers, CheckCircle, AlertTriangle, Clock, Zap, BookOpen, Users, Heart, ExternalLink, Github } from 'lucide-react';
-import { ArchitectureDiagram, StatusBadge, DemoLabel } from '../components/Layout';
+import { ArrowRight, Github, Heart, Users, Mic, Globe, Smartphone, Brain, Shield, Eye, Clock, Layers, ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
+import { WolfLogo, WolfMark } from '../components/WolfLogo';
+import { StatusBadge, DemoLabel, useScrollReveal } from '../components/Layout';
 
-export default function HomePage() {
+// ===== VOICE WAVEFORM =====
+function VoiceWaveform({ active = false }: { active?: boolean }) {
+  const bars = 24;
   return (
-    <div>
-      {/* Hero Section */}
-      <section className="paper-texture-light relative overflow-hidden">
-        <div className="absolute inset-0 fibers" />
-        {/* Registration marks */}
-        <div className="absolute top-4 left-4 text-[8px] font-mono text-ink-muted opacity-20">+</div>
-        <div className="absolute top-4 right-4 text-[8px] font-mono text-ink-muted opacity-20">+</div>
-        <div className="absolute bottom-4 left-4 text-[8px] font-mono text-ink-muted opacity-20">+</div>
-        <div className="absolute bottom-4 right-4 text-[8px] font-mono text-ink-muted opacity-20">+</div>
-        {/* Decorative side element */}
-        <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden xl:block">
-          <svg width="120" height="300" viewBox="0 0 120 300" fill="none" className="opacity-[0.06]">
-            <circle cx="60" cy="60" r="40" stroke="#2c2416" strokeWidth="0.5" />
-            <circle cx="60" cy="60" r="25" stroke="#2c2416" strokeWidth="0.5" />
-            <circle cx="60" cy="60" r="10" stroke="#2c2416" strokeWidth="0.5" />
-            <line x1="60" y1="100" x2="60" y2="200" stroke="#2c2416" strokeWidth="0.5" />
-            <circle cx="60" cy="240" r="30" stroke="#2c2416" strokeWidth="0.5" />
-            <line x1="30" y1="240" x2="90" y2="240" stroke="#2c2416" strokeWidth="0.5" />
-            <line x1="60" y1="210" x2="60" y2="270" stroke="#2c2416" strokeWidth="0.5" />
-          </svg>
-        </div>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-24 relative">
-          <div className="max-w-3xl">
-            <div className="flex items-center gap-2 mb-6">
-              <span className="text-xs font-mono uppercase tracking-[0.15em] text-ochre-dark">Open Source · Apache-2.0</span>
-              <span className="w-8 h-px bg-ochre/40" />
-              <span className="text-xs font-mono text-ink-muted">v0.1 — Evolving</span>
-            </div>
-            <h1 className="display-serif text-4xl sm:text-5xl md:text-6xl text-ink leading-[1.1] mb-6">
-              An AI Agent Built to<br />
-              <span className="text-ochre-dark">Act</span>, <span className="text-olive-dark">Observe</span>, and <span className="text-rust">Verify</span>.
-            </h1>
-            <p className="body-sans text-lg md:text-xl text-ink-light max-w-2xl mb-8 leading-relaxed">
-              TOM combines AI planning, registered tools, contextual memory, browser and Android bridges, voice interfaces, explicit permissions, and action-specific verification — so you can see what actually happened, not just what was claimed.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Link to="/docs/quick-start" className="inline-flex items-center gap-2 px-5 py-2.5 bg-ink text-parchment text-sm font-sans font-medium rounded-sm hover:bg-ink-light transition-colors">
-                Explore TOM <ArrowRight size={15} />
-              </Link>
-              <Link to="/docs" className="inline-flex items-center gap-2 px-5 py-2.5 border border-ink/20 text-ink text-sm font-sans font-medium rounded-sm hover:bg-wheat/30 transition-colors">
-                <BookOpen size={15} /> Documentation
-              </Link>
-              <a href="https://github.com/Raghav509/TOM" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-5 py-2.5 border border-ink/20 text-ink text-sm font-sans font-medium rounded-sm hover:bg-wheat/30 transition-colors">
-                <Github size={15} /> View GitHub
-              </a>
-              <Link to="/community" className="inline-flex items-center gap-2 px-5 py-2.5 border border-ink/20 text-ink text-sm font-sans font-medium rounded-sm hover:bg-wheat/30 transition-colors">
-                <Users size={15} /> Community
-              </Link>
-              <Link to="/support" className="inline-flex items-center gap-2 px-5 py-2.5 border border-ochre/30 text-ochre-dark text-sm font-sans font-medium rounded-sm hover:bg-ochre/5 transition-colors">
-                <Heart size={15} /> Support
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+    <div className="flex items-center gap-[2px] h-8">
+      {Array.from({ length: bars }).map((_, i) => {
+        const baseHeight = active ? Math.sin(i * 0.5) * 12 + 14 : 3;
+        return (
+          <div key={i} className={`w-[3px] rounded-full transition-all ${active ? 'bg-black' : 'bg-gray-200'}`}
+            style={{
+              height: `${baseHeight}px`,
+              transition: active ? 'height 0.15s ease' : 'height 0.5s ease',
+              animationDelay: `${i * 30}ms`,
+              opacity: active ? 0.6 + Math.sin(i * 0.3) * 0.4 : 0.3
+            }} />
+        );
+      })}
+    </div>
+  );
+}
 
-      {/* Architecture Diagram */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12 md:py-16">
-        <div className="text-center mb-8">
-          <p className="diagram-label mb-2">System Architecture</p>
-          <h2 className="display-serif text-2xl md:text-3xl text-ink">How TOM Processes a Request</h2>
-          <p className="body-sans text-ink-muted mt-2 max-w-xl mx-auto text-sm">From natural language to verified action — every step is observable, every outcome is evaluated.</p>
-        </div>
-        <ArchitectureDiagram />
-      </section>
+// ===== HERO DEMO - Flight Booking Simulation =====
+function HeroDemo() {
+  const [step, setStep] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-      {/* Capability Overview */}
-      <section className="paper-texture-dark py-12 md:py-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <h2 className="display-serif text-2xl md:text-3xl text-ink mb-2">Capability Overview</h2>
-          <p className="body-sans text-ink-muted mb-8 max-w-2xl">Honest status reporting. What's implemented, what needs configuration, what's experimental, and what's planned.</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              { icon: Brain, title: 'Planning & Reasoning', desc: 'Rule-based and model-based planners with structured output validation', status: 'implemented' },
-              { icon: Cpu, title: 'Local Model Inference', desc: 'OpenAI-compatible endpoint via Ollama with Qwen-family models', status: 'requires-config' },
-              { icon: Layers, title: 'Registered Tool System', desc: 'Explicit tool contracts with permissions, descriptions, and input validation', status: 'implemented' },
-              { icon: Globe, title: 'Browser Automation', desc: 'Playwright adapter with navigation policy, session boundaries, and approval gates', status: 'requires-config' },
-              { icon: Smartphone, title: 'Android Device Agent', desc: 'Kotlin agent with accessibility observations, device auth, and post-action verification', status: 'experimental' },
-              { icon: Mic, title: 'Voice & Speech', desc: 'Full-duplex WebSocket, streaming ASR, neural VAD, TTS with Qwen3-TTS adapter', status: 'experimental' },
-              { icon: Shield, title: 'Permissions & Approval', desc: 'Risk classification, approval gates for consequential actions, operator authentication', status: 'implemented' },
-              { icon: Eye, title: 'Verification Engine', desc: 'Action-specific success predicates with VERIFIED, FAILED, and UNKNOWN outcomes', status: 'implemented' },
-              { icon: Clock, title: 'Memory & Context', desc: 'Local memory store, JSONL persistence, contextual conversation handling', status: 'implemented' },
-            ].map((cap, i) => (
-              <div key={i} className="paper-layer p-5 relative">
-                <div className="flex items-start justify-between mb-3">
-                  <cap.icon size={20} className="text-ochre-dark" />
-                  <StatusBadge status={cap.status} />
-                </div>
-                <h3 className="font-sans font-semibold text-ink text-sm mb-1.5">{cap.title}</h3>
-                <p className="font-sans text-xs text-ink-muted leading-relaxed">{cap.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+  const steps = [
+    { type: 'voice', speaker: 'user', text: '"TOM, find me a flight to Delhi tomorrow."' },
+    { type: 'voice', speaker: 'tom', text: 'Sure. What departure city should I use?' },
+    { type: 'voice', speaker: 'user', text: '"Patna."' },
+    { type: 'action', text: 'TOM is searching flights…' },
+    { type: 'browser', text: 'Opening flight search…' },
+    { type: 'result', text: 'Found 3 flights. Comparing schedules and fares…' },
+    { type: 'approval', text: 'Please confirm booking details before proceeding.' },
+    { type: 'verify', text: 'Collecting booking evidence…' },
+    { type: 'success', text: 'Booking verified. Confirmation: BK-2847.' },
+  ];
 
-      {/* Verification-First Principles */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12 md:py-16">
-        <div className="grid md:grid-cols-2 gap-12 items-start">
-          <div>
-            <p className="diagram-label mb-2">Core Philosophy</p>
-            <h2 className="display-serif text-3xl md:text-4xl text-ink mb-4">Verification First</h2>
-            <p className="body-sans text-ink-light leading-relaxed mb-4">
-              An execution acknowledgement or changed screen is not enough to declare task success. TOM's verification sequence is: observe → plan → act → collect a fresh observation → evaluate an action-specific success predicate → continue, recover, stop, or report uncertainty.
-            </p>
-            <p className="body-sans text-ink-light leading-relaxed mb-4">
-              Three distinct outcomes: <strong className="text-olive-dark">VERIFIED</strong>, <strong className="text-rust">FAILED</strong>, and <strong className="text-ink-muted">UNKNOWN</strong>. Failure and uncertainty are valuable honest outcomes — not bugs to hide.
-            </p>
-            <Link to="/capabilities/verification" className="inline-flex items-center gap-1.5 text-sm font-sans font-medium text-ochre-dark hover:text-rust transition-colors">
-              Read about verification <ArrowRight size={14} />
-            </Link>
-          </div>
-          <div className="diagram-container">
-            <div className="space-y-4">
-              {[
-                { step: '01', label: 'Observe', desc: 'Capture current state before action', color: 'bg-ochre/10 border-ochre/30' },
-                { step: '02', label: 'Plan', desc: 'Generate structured action plan', color: 'bg-olive/10 border-olive/30' },
-                { step: '03', label: 'Act', desc: 'Execute through registered tool', color: 'bg-clay/10 border-clay/30' },
-                { step: '04', label: 'Re-observe', desc: 'Collect fresh observation post-action', color: 'bg-rust/10 border-rust/30' },
-                { step: '05', label: 'Evaluate', desc: 'Apply action-specific success predicate', color: 'bg-ink/5 border-ink/20' },
-                { step: '06', label: 'Report', desc: 'VERIFIED · FAILED · UNKNOWN', color: 'bg-sage/10 border-sage/30' },
-              ].map((item, i) => (
-                <div key={i} className={`flex items-center gap-3 p-3 border rounded-sm ${item.color}`}>
-                  <span className="font-mono text-xs text-ink-muted w-6">{item.step}</span>
-                  <div>
-                    <span className="font-sans font-semibold text-sm text-ink">{item.label}</span>
-                    <span className="font-sans text-xs text-ink-muted ml-2">{item.desc}</span>
+  useEffect(() => {
+    if (isPaused) return;
+    intervalRef.current = setInterval(() => {
+      setStep(s => (s + 1) % steps.length);
+    }, 3000);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [isPaused, steps.length]);
+
+  return (
+    <div className="browser-mockup w-full max-w-lg">
+      <div className="browser-bar">
+        <div className="browser-dot" /><div className="browser-dot" /><div className="browser-dot" />
+        <div className="flex-1 mx-3 px-3 py-1 bg-white rounded-md text-xs text-gray-400 font-mono border border-gray-100">
+          tom.agent/flight-search
+        </div>
+        <button onClick={() => setIsPaused(!isPaused)} className="p-1 hover:bg-gray-100 rounded" aria-label={isPaused ? 'Play' : 'Pause'}>
+          {isPaused ? <Play size={12} /> : <Pause size={12} />}
+        </button>
+      </div>
+      <div className="p-5 min-h-[280px] flex flex-col">
+        <DemoLabel />
+        {/* Voice waveform */}
+        <div className="mb-4">
+          <VoiceWaveform active={step < 3} />
+        </div>
+        <div className="flex-1 flex flex-col justify-center mt-2 space-y-3">
+          {steps.slice(Math.max(0, step - 3), step + 1).map((s, i) => (
+            <div key={step - 3 + i} className={`animate-fade-up ${i === Math.min(3, step) ? 'opacity-100' : 'opacity-40'}`}>
+              {s.type === 'voice' && (
+                <div className={`flex items-start gap-3 ${s.speaker === 'tom' ? 'flex-row-reverse' : ''}`}>
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${s.speaker === 'tom' ? 'bg-black' : 'bg-gray-100'}`}>
+                    {s.speaker === 'tom' ? <WolfMark size={14} className="text-white" /> : <Mic size={12} className="text-gray-500" />}
+                  </div>
+                  <div className={`px-3 py-2 rounded-2xl text-sm max-w-[240px] ${s.speaker === 'tom' ? 'bg-black text-white rounded-tr-sm' : 'bg-gray-100 text-gray-800 rounded-tl-sm'}`}>
+                    {s.text}
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Real-World Example Workflows */}
-      <section className="paper-texture-dark py-12 md:py-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <p className="diagram-label mb-2">Example Workflows</p>
-          <h2 className="display-serif text-2xl md:text-3xl text-ink mb-8">What TOM Can Do</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            {[
-              {
-                title: 'Search and Navigate',
-                steps: ['User: "Find flights from Delhi to Mumbai tomorrow"', 'Planner generates search steps', 'Browser tool opens travel site', 'Observation captures results', 'Predicate verifies results loaded', 'Memory stores context for follow-up'],
-                status: 'requires-config'
-              },
-              {
-                title: 'Android App Interaction',
-                steps: ['User: "Open Maps and search for nearest cafe"', 'Device agent authenticates', 'Opens Maps app via intent', 'Accessibility observation confirms app', 'Enters search query', 'Post-action verification checks results'],
-                status: 'experimental'
-              },
-              {
-                title: 'Multi-Step Research',
-                steps: ['User: "Research Qwen3 model capabilities"', 'Planner breaks into sub-tasks', 'Browser searches documentation', 'Extracts relevant information', 'Verifies each source', 'Compiles structured summary'],
-                status: 'requires-config'
-              },
-              {
-                title: 'Voice-Controlled Task',
-                steps: ['User speaks request via WebSocket', 'ASR transcribes to text', 'Agent processes and plans', 'TTS speaks confirmation', 'Tools execute with verification', 'Voice reports final outcome'],
-                status: 'experimental'
-              },
-            ].map((workflow, i) => (
-              <div key={i} className="paper-layer p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-sans font-semibold text-sm text-ink">{workflow.title}</h3>
-                  <StatusBadge status={workflow.status} />
+              )}
+              {s.type === 'action' && (
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="w-4 h-4 border-2 border-gray-300 border-t-black rounded-full animate-spin" />
+                  {s.text}
                 </div>
-                <ol className="space-y-1.5">
-                  {workflow.steps.map((step, j) => (
-                    <li key={j} className="flex items-start gap-2 text-xs font-sans text-ink-muted">
-                      <span className="font-mono text-ochre-dark mt-0.5 flex-shrink-0">{String(j + 1).padStart(2, '0')}</span>
-                      <span>{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            ))}
-          </div>
-          <DemoLabel text="These workflows illustrate intended behavior. Actual execution depends on configuration, available tools, and connected services." />
-        </div>
-      </section>
-
-      {/* Project Maturity */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12 md:py-16">
-        <p className="diagram-label mb-2">Transparency</p>
-        <h2 className="display-serif text-2xl md:text-3xl text-ink mb-6">Project Maturity</h2>
-        <p className="body-sans text-ink-light max-w-3xl mb-8">
-          TOM is an evolving engineering project, not a magically omnipotent AI. We believe in transparent capability reporting — here's where things stand.
-        </p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { label: 'Implemented Foundations', desc: 'Core runtime, tool registry, planner interfaces, permission system, verification framework, API endpoints, event infrastructure', icon: CheckCircle, color: 'text-olive-dark' },
-            { label: 'Requires Configuration', desc: 'Local model inference (Ollama), browser automation (Playwright), workspace tools, public API adapters, TTS engines', icon: Zap, color: 'text-ochre-dark' },
-            { label: 'Experimental', desc: 'Android device agent, full-duplex voice, Qwen3-TTS synthesis, neural VAD, semantic memory adapters', icon: AlertTriangle, color: 'text-rust' },
-            { label: 'Planned / Future', desc: 'Production multi-tenant auth, encrypted storage, comprehensive benchmarks, additional integrations, hardened deployment', icon: Clock, color: 'text-ink-muted' },
-          ].map((item, i) => (
-            <div key={i} className="p-4 border border-wheat-dark/30 rounded-sm">
-              <item.icon size={18} className={`${item.color} mb-2`} />
-              <h3 className="font-sans font-semibold text-sm text-ink mb-1.5">{item.label}</h3>
-              <p className="font-sans text-xs text-ink-muted leading-relaxed">{item.desc}</p>
+              )}
+              {s.type === 'browser' && (
+                <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Globe size={12} className="text-gray-400" />
+                    <span className="text-xs font-mono text-gray-400">flights.example.com</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="bg-white rounded-lg p-2 border border-gray-100">
+                      <p className="text-[10px] text-gray-400">Patna → Delhi</p>
+                      <p className="text-xs font-semibold">6:30 AM</p>
+                      <p className="text-[10px] text-green-600">₹4,200</p>
+                    </div>
+                    <div className="bg-white rounded-lg p-2 border border-gray-100">
+                      <p className="text-[10px] text-gray-400">Patna → Delhi</p>
+                      <p className="text-xs font-semibold">2:15 PM</p>
+                      <p className="text-[10px] text-green-600">₹3,800</p>
+                    </div>
+                    <div className="bg-white rounded-lg p-2 border border-gray-100">
+                      <p className="text-[10px] text-gray-400">Patna → Delhi</p>
+                      <p className="text-xs font-semibold">9:45 PM</p>
+                      <p className="text-[10px] text-green-600">₹3,500</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {s.type === 'approval' && (
+                <div className="bg-amber-50 border border-amber-100 rounded-xl p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Shield size={12} className="text-amber-600" />
+                    <span className="text-xs font-semibold text-amber-800">Awaiting your approval</span>
+                  </div>
+                  <p className="text-xs text-amber-700">TOM pauses before consequential actions. Confirm to proceed.</p>
+                </div>
+              )}
+              {s.type === 'verify' && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Eye size={14} className="text-blue-500" />
+                  <span className="text-gray-600">{s.text}</span>
+                </div>
+              )}
+              {s.type === 'success' && (
+                <div className="bg-green-50 border border-green-100 rounded-xl p-3 flex items-center gap-2">
+                  <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" /></svg>
+                  </div>
+                  <span className="text-sm font-medium text-green-800">{s.text}</span>
+                </div>
+              )}
             </div>
           ))}
         </div>
+        <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+          <span className="text-xs font-mono text-gray-400">Step {step + 1}/{steps.length}</span>
+          <div className="flex gap-1">
+            {steps.map((_, i) => (
+              <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${i === step ? 'bg-black w-4' : 'bg-gray-200'}`} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== ECOSYSTEM ANIMATION =====
+function EcosystemAnimation() {
+  const services = [
+    { name: 'WhatsApp', angle: 0, status: 'planned', color: '#25D366' },
+    { name: 'Google', angle: 51, status: 'requires-config', color: '#4285F4' },
+    { name: 'Instagram', angle: 103, status: 'planned', color: '#E4405F' },
+    { name: 'Spotify', angle: 154, status: 'planned', color: '#1DB954' },
+    { name: 'YouTube', angle: 206, status: 'planned', color: '#FF0000' },
+    { name: 'Google Pay', angle: 257, status: 'requires-config', color: '#4285F4' },
+    { name: 'Facebook', angle: 308, status: 'planned', color: '#1877F2' },
+  ];
+  const [active, setActive] = useState<number | null>(null);
+
+  return (
+    <div className="relative w-full max-w-md mx-auto aspect-square">
+      {/* Center wolf */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-20 h-20 bg-black rounded-full flex items-center justify-center shadow-lg">
+          <WolfLogo size={40} className="text-white" />
+        </div>
+      </div>
+      {/* Orbiting services */}
+      {services.map((s, i) => {
+        const rad = (s.angle * Math.PI) / 180;
+        const r = 42;
+        const x = 50 + r * Math.cos(rad);
+        const y = 50 + r * Math.sin(rad);
+        return (
+          <div key={i} className="absolute" style={{ left: `${x}%`, top: `${y}%`, transform: 'translate(-50%, -50%)' }}>
+            <button
+              onMouseEnter={() => setActive(i)}
+              onMouseLeave={() => setActive(null)}
+              className={`w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border-2 shadow-sm flex items-center justify-center transition-all duration-300 hover:scale-110 ${active === i ? 'border-black scale-110 shadow-md' : 'border-gray-200'}`}
+              aria-label={s.name}
+            >
+              <span className="text-[9px] font-bold" style={{ color: s.color }}>{s.name.slice(0, 2)}</span>
+            </button>
+            {active === i && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-black text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-lg animate-fade-in z-10">
+                <p className="font-semibold">{s.name}</p>
+                <p className="text-gray-400 text-[10px]">{s.status === 'planned' ? 'Planned' : 'Requires Config'}</p>
+              </div>
+            )}
+          </div>
+        );
+      })}
+      {/* Connection lines (SVG) */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100">
+        {services.map((s, i) => {
+          const rad = (s.angle * Math.PI) / 180;
+          const r = 42;
+          const x = 50 + r * Math.cos(rad);
+          const y = 50 + r * Math.sin(rad);
+          return (
+            <line key={i} x1="50" y1="50" x2={x} y2={y} stroke={active === i ? '#171717' : '#e5e5e5'} strokeWidth={active === i ? '0.3' : '0.15'} className="transition-all duration-300" />
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+// ===== FEATURE SLIDES =====
+const slides = [
+  { id: 'speak', title: 'Speak Naturally', icon: Mic, desc: 'Use your voice to give TOM tasks. Full-duplex WebSocket with streaming ASR, neural VAD, and natural turn-taking.', color: 'bg-blue-50' },
+  { id: 'plan', title: 'Plan Multi-Step Tasks', icon: Brain, desc: 'TOM breaks complex requests into structured plans. Rule-based and model-based planners with validation and recovery.', color: 'bg-purple-50' },
+  { id: 'tools', title: 'Browser & Android Tools', icon: Globe, desc: 'Interact with websites through Playwright and Android devices through an authenticated Kotlin agent with accessibility observations.', color: 'bg-green-50' },
+  { id: 'approve', title: 'Pause for Approval', icon: Shield, desc: 'Consequential actions require your explicit confirmation. TOM never proceeds with purchases, messages, or deletions without asking.', color: 'bg-amber-50' },
+  { id: 'verify', title: 'Verify What Actually Happened', icon: Eye, desc: 'Fresh observations, action-specific predicates. VERIFIED, FAILED, or UNKNOWN — never fabricated success.', color: 'bg-emerald-50' },
+  { id: 'local', title: 'Local Qwen Models', icon: Layers, desc: 'Run inference locally through Ollama. Your data stays on your machine. Provider-neutral, replaceable models.', color: 'bg-gray-50' },
+  { id: 'extend', title: 'Extend with Open Source', icon: Users, desc: 'Registered tools, replaceable adapters, open architecture. Contribute code, research, documentation, or testing.', color: 'bg-rose-50' },
+];
+
+function FeatureSlides() {
+  const [current, setCurrent] = useState(0);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  const goTo = (i: number) => {
+    setCurrent(i);
+    trackRef.current?.scrollTo({ left: i * (trackRef.current.clientWidth * 0.85 + 24), behavior: 'smooth' });
+  };
+
+  return (
+    <div className="relative">
+      <div ref={trackRef} className="slider-track px-4 sm:px-8">
+        {slides.map((slide, i) => (
+          <div key={slide.id} className="slider-item w-[85vw] sm:w-[400px]">
+            <div className={`card-elevated h-full ${slide.color}`}>
+              <slide.icon size={28} className="text-gray-700 mb-4" />
+              <h3 className="heading-sans text-xl mb-2">{slide.title}</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">{slide.desc}</p>
+              <div className="mt-4 pt-4 border-t border-gray-200/50">
+                <StatusBadge status={i < 4 ? 'implemented' : i < 6 ? 'requires-config' : 'implemented'} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="flex items-center justify-center gap-3 mt-6">
+        <button onClick={() => goTo(Math.max(0, current - 1))} className="p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="Previous">
+          <ChevronLeft size={18} />
+        </button>
+        <div className="flex gap-1.5">
+          {slides.map((_, i) => (
+            <button key={i} onClick={() => goTo(i)} className={`w-2 h-2 rounded-full transition-all ${i === current ? 'bg-black w-6' : 'bg-gray-300 hover:bg-gray-400'}`} aria-label={`Slide ${i + 1}`} />
+          ))}
+        </div>
+        <button onClick={() => goTo(Math.min(slides.length - 1, current + 1))} className="p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="Next">
+          <ChevronRight size={18} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ===== HOME PAGE =====
+export default function HomePage() {
+  useScrollReveal();
+  return (
+    <div className="pt-16">
+      {/* HERO */}
+      <section className="min-h-[90vh] flex items-center bg-white relative overflow-hidden">
+        {/* Subtle grid background */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #000 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+        <div className="absolute top-20 right-10 opacity-[0.03] hidden lg:block animate-float">
+          <WolfLogo size={300} />
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 w-full">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <div className="animate-fade-up">
+              <div className="flex items-center gap-3 mb-6">
+                <span className="badge badge-gray">Open Source</span>
+                <span className="badge badge-gray">Apache-2.0</span>
+                <span className="text-xs font-mono text-gray-400">v0.1</span>
+              </div>
+              <h1 className="heading-sans text-4xl sm:text-5xl lg:text-6xl text-black mb-6 leading-[1.05]">
+                Give AI a Task.<br />
+                <span className="text-gray-400">Watch It</span> Understand,<br />
+                Act, and Verify.
+              </h1>
+              <p className="text-editorial text-lg mb-8 max-w-lg">
+                TOM is an open-source personal AI agent runtime combining model-driven planning, registered tools, browser and Android interaction, voice interfaces, permissions, memory, and action-specific verification.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link to="/docs/quick-start" className="btn-primary">
+                  Explore TOM <ArrowRight size={16} />
+                </Link>
+                <a href="https://github.com/Raghav509/TOM" target="_blank" rel="noopener noreferrer" className="btn-secondary">
+                  <Github size={16} /> View on GitHub
+                </a>
+                <Link to="/community" className="btn-ghost">
+                  Join the Community →
+                </Link>
+              </div>
+            </div>
+            <div className="animate-fade-up delay-300">
+              <HeroDemo />
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* Research Highlights */}
-      <section className="paper-texture-dark py-12 md:py-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="flex items-end justify-between mb-8">
+      {/* INTEGRATION ECOSYSTEM */}
+      <section className="py-20 md:py-28 bg-gray-50/50" data-reveal>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <p className="diagram-label mb-2">Research</p>
-              <h2 className="display-serif text-2xl md:text-3xl text-ink">Research Foundations</h2>
+              <p className="text-xs font-mono uppercase tracking-wider text-gray-400 mb-3">Integration Ecosystem</p>
+              <h2 className="heading-sans text-3xl md:text-4xl text-black mb-4">Connect → Request → Act → Observe → Verify</h2>
+              <p className="text-editorial mb-6">TOM is designed to interact with the services you use. Each integration follows the same pattern: connect, request permission, perform supported operations, observe the response, and verify the result.</p>
+              <p className="text-sm text-gray-500 mb-6">Hover over each service to see its integration status. Most are planned or require configuration — none are falsely claimed as connected.</p>
+              <Link to="/capabilities/integrations" className="btn-ghost !text-black">View all integrations →</Link>
             </div>
-            <Link to="/research" className="text-sm font-sans text-ochre-dark hover:text-rust transition-colors flex items-center gap-1">
-              View all <ArrowRight size={14} />
-            </Link>
+            <EcosystemAnimation />
           </div>
-          <div className="grid md:grid-cols-3 gap-4">
+        </div>
+      </section>
+
+      {/* FEATURE SLIDES */}
+      <section className="py-20 md:py-28" data-reveal>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
+          <p className="text-xs font-mono uppercase tracking-wider text-gray-400 mb-3">Capabilities</p>
+          <h2 className="heading-sans text-3xl md:text-4xl text-black">What TOM Can Do</h2>
+        </div>
+        <FeatureSlides />
+      </section>
+
+      {/* ARCHITECTURE */}
+      <section className="py-20 md:py-28 bg-gray-50/50" data-reveal>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <p className="text-xs font-mono uppercase tracking-wider text-gray-400 mb-3">Architecture</p>
+            <h2 className="heading-sans text-3xl md:text-4xl text-black mb-4">How TOM Processes a Request</h2>
+            <p className="text-editorial max-w-xl mx-auto">From natural language to verified action — every step is observable, every outcome is evaluated honestly.</p>
+          </div>
+          <div className="bg-white border border-gray-100 rounded-2xl p-6 md:p-8 shadow-sm">
+            <DemoLabel />
+            <svg viewBox="0 0 800 200" className="w-full mt-6" fill="none">
+              {/* Simplified flow */}
+              {[
+                { x: 40, label: 'Request', sub: 'input' },
+                { x: 180, label: 'Plan', sub: 'reason' },
+                { x: 320, label: 'Permission', sub: 'check' },
+                { x: 460, label: 'Execute', sub: 'tools' },
+                { x: 600, label: 'Observe', sub: 'fresh' },
+                { x: 720, label: 'Verify', sub: 'predicate' },
+              ].map((node, i) => (
+                <g key={i}>
+                  <rect x={node.x} y={60} width={100} height={60} rx={12} fill={i === 5 ? '#171717' : '#fff'} stroke="#e5e5e5" strokeWidth="1.5" />
+                  <text x={node.x + 50} y={88} textAnchor="middle" style={{ fontSize: '11px', fontFamily: 'Inter', fontWeight: 600, fill: i === 5 ? '#fff' : '#171717' }}>{node.label}</text>
+                  <text x={node.x + 50} y={105} textAnchor="middle" style={{ fontSize: '9px', fontFamily: 'JetBrains Mono', fill: i === 5 ? 'rgba(255,255,255,0.5)' : '#a3a3a3' }}>{node.sub}</text>
+                  {i < 5 && <path d={`M${node.x + 100} 90 L${node.x + 120} 90`} stroke="#d4d4d4" strokeWidth="1.5" markerEnd="url(#arrow)" />}
+                </g>
+              ))}
+              <defs><marker id="arrow" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><polygon points="0 0, 6 2, 0 4" fill="#d4d4d4" /></marker></defs>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      {/* CAPABILITY STATUS */}
+      <section className="py-20 md:py-28" data-reveal>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <p className="text-xs font-mono uppercase tracking-wider text-gray-400 mb-3">Transparency</p>
+            <h2 className="heading-sans text-3xl md:text-4xl text-black mb-4">Honest Status Reporting</h2>
+            <p className="text-editorial max-w-xl mx-auto">We never confuse code with working integration. Every capability has a truthful status.</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { title: 'V-Droid', area: 'Mobile GUI Automation', desc: 'Video-based navigation for Android device agents using visual grounding.' },
-              { title: 'VeriSafe Agent', area: 'Evidence-Based Verification', desc: 'Safety verification frameworks for autonomous agent actions in real environments.' },
-              { title: 'AndroidWorld', area: 'Execution-Based Evaluation', desc: 'Benchmark for evaluating Android agents through real device interaction.' },
-            ].map((paper, i) => (
-              <Link to="/research" key={i} className="paper-layer p-5 hover:shadow-md transition-shadow group">
-                <span className="text-xs font-mono text-ochre-dark uppercase tracking-wider">{paper.area}</span>
-                <h3 className="font-serif text-lg text-ink mt-1 mb-2 group-hover:text-ochre-dark transition-colors">{paper.title}</h3>
-                <p className="font-sans text-xs text-ink-muted leading-relaxed">{paper.desc}</p>
-              </Link>
+              { label: 'Implemented', count: '8', desc: 'Core runtime, tools, permissions, verification, memory, events', badge: 'badge-green' },
+              { label: 'Requires Config', count: '5', desc: 'Local models, browser, workspace, public APIs, OAuth', badge: 'badge-amber' },
+              { label: 'Experimental', count: '4', desc: 'Android agent, voice, TTS, VAD', badge: 'badge-blue' },
+              { label: 'Planned', count: '3', desc: 'Semantic memory, encrypted storage, multi-tenant', badge: 'badge-gray' },
+            ].map((cat, i) => (
+              <div key={i} className="card text-center">
+                <span className={`badge ${cat.badge} mb-3`}>{cat.label}</span>
+                <p className="heading-sans text-4xl text-black my-2">{cat.count}</p>
+                <p className="text-xs text-gray-500">{cat.desc}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Contribution & Donation CTA */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12 md:py-16">
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="paper-layer p-6 md:p-8">
-            <Users size={24} className="text-olive-dark mb-3" />
-            <h3 className="display-serif text-xl text-ink mb-2">Contribute to TOM</h3>
-            <p className="body-sans text-sm text-ink-muted mb-4">
-              TOM is open source and welcomes contributions: code, research, documentation, hardware testing, model compatibility reports, and bug reports.
-            </p>
-            <Link to="/contribute" className="inline-flex items-center gap-1.5 text-sm font-sans font-medium text-ochre-dark hover:text-rust transition-colors">
-              Contribution guide <ArrowRight size={14} />
-            </Link>
-          </div>
-          <div className="paper-layer p-6 md:p-8">
-            <Heart size={24} className="text-rust mb-3" />
-            <h3 className="display-serif text-xl text-ink mb-2">Support Development</h3>
-            <p className="body-sans text-sm text-ink-muted mb-4">
-              Donations support testing hardware, model inference resources, documentation, research, hosting, and security improvements. Transparent funding, no fabricated totals.
-            </p>
-            <Link to="/support" className="inline-flex items-center gap-1.5 text-sm font-sans font-medium text-ochre-dark hover:text-rust transition-colors">
-              Support TOM <ArrowRight size={14} />
-            </Link>
+      {/* CTA */}
+      <section className="py-20 md:py-28 bg-black text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <WolfLogo size={48} className="text-white mx-auto mb-6 opacity-80" />
+          <h2 className="heading-sans text-3xl md:text-4xl text-white mb-4">Built to Act, Observe, and Verify</h2>
+          <p className="text-gray-400 text-lg mb-8 max-w-xl mx-auto">TOM is open source and evolving. Explore the code, contribute, or support development.</p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link to="/docs/quick-start" className="btn-primary !bg-white !text-black hover:!bg-gray-100">Get Started</Link>
+            <Link to="/support" className="btn-secondary !border-white/20 !text-white hover:!bg-white/10"><Heart size={16} /> Support TOM</Link>
+            <a href="https://github.com/Raghav509/TOM" target="_blank" rel="noopener noreferrer" className="btn-secondary !border-white/20 !text-white hover:!bg-white/10"><Github size={16} /> GitHub</a>
           </div>
         </div>
       </section>
