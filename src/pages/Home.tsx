@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Github, Heart, Users, Mic, Globe, Smartphone, Brain, Shield, Eye, Clock, Layers, ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 import { WolfLogo, WolfMark } from '../components/WolfLogo';
 import { StatusBadge, DemoLabel, useScrollReveal } from '../components/Layout';
+import { SEO, OrganizationSchema, SoftwareApplicationSchema } from '../components/SEO';
 
 // ===== VOICE WAVEFORM =====
 function VoiceWaveform({ active = false }: { active?: boolean }) {
@@ -271,38 +272,34 @@ export default function HomePage() {
   useScrollReveal();
   return (
     <div className="pt-16">
+      <SEO
+        title="TOM - AI Agent Runtime"
+        description="Open-source AI agent runtime with planning, tools, browser automation, Android control, voice, and verification. Built to act, observe, and verify."
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@graph': [
+            OrganizationSchema(),
+            SoftwareApplicationSchema()
+          ]
+        }}
+      />
       {/* HERO */}
-      <section className="min-h-[90vh] flex items-center bg-white relative overflow-hidden">
-        {/* Subtle grid background */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #000 1px, transparent 0)', backgroundSize: '40px 40px' }} />
-        <div className="absolute top-20 right-10 opacity-[0.03] hidden lg:block animate-float">
-          <WolfLogo size={300} />
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 w-full">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <section className="relative bg-white overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <div className="animate-fade-up">
-              <div className="flex items-center gap-3 mb-6">
-                <span className="badge badge-gray">Open Source</span>
-                <span className="badge badge-gray">Apache-2.0</span>
-                <span className="text-xs font-mono text-gray-400">v0.1</span>
-              </div>
-              <h1 className="heading-sans text-4xl sm:text-5xl lg:text-6xl text-black mb-6 leading-[1.05]">
-                Give AI a Task.<br />
-                <span className="text-gray-400">Watch It</span> Understand,<br />
-                Act, and Verify.
+              <h1 className="heading-sans text-4xl sm:text-5xl lg:text-[3.5rem] text-black mb-5 leading-[1.1] tracking-tight">
+                AI That Acts,<br />Observes & Verifies
               </h1>
-              <p className="text-editorial text-lg mb-8 max-w-lg">
-                TOM is an open-source personal AI agent runtime combining model-driven planning, registered tools, browser and Android interaction, voice interfaces, permissions, memory, and action-specific verification.
+              <p className="text-gray-600 text-base md:text-lg mb-7 max-w-md leading-relaxed">
+                TOM is an open-source AI agent runtime with planning, tools, browser automation, Android control, voice, and verification.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Link to="/docs/quick-start" className="btn-primary">
                   Explore TOM <ArrowRight size={16} />
                 </Link>
-                <a href="https://github.com/Raghav509/TOM" target="_blank" rel="noopener noreferrer" className="btn-secondary">
-                  <Github size={16} /> View on GitHub
-                </a>
-                <Link to="/community" className="btn-ghost">
-                  Join the Community →
+                <Link to="/docs" className="btn-secondary">
+                  View Documentation
                 </Link>
               </div>
             </div>

@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://xova.pro/sitemap.xml
+
+# Block sensitive routes
+Disallow: /api/
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /internal/
+Disallow: /*?token=
+Disallow: /*?key=
+Disallow: /community/join/submit
+Disallow: /donation/process
+
+# Allow search engines to crawl public content
+Allow: /docs/
+Allow: /research/
+Allow: /capabilities/
+Allow: /community/
+Allow: /faq
+Allow: /about
+Allow: /roadmap
+
+# Crawl-delay for politeness
+Crawl-delay: 1
