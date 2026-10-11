@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { PageHeader, SectionHeading, InfoBox, StatusBadge, CodeBlock } from '../components/Layout';
 import { SEO, BreadcrumbSchema, FAQPageSchema } from '../components/SEO';
-import { ArrowRight, Cpu, Brain, Layers, Globe, Smartphone, Mic, Shield, Eye, Clock, Database, Lock, Wifi, FileText, Check, GitBranch, BookOpen, Terminal, Download, ExternalLink, AlertTriangle, Zap, Code, Users, Heart } from 'lucide-react';
+import { ArrowRight, Cpu, Brain, Layers, Globe, Smartphone, Mic, Shield, Eye, Clock, Database, Lock, Wifi, FileText, Check, GitBranch, BookOpen, Terminal, Download, ExternalLink, AlertTriangle, Zap, Code, Users, Heart, Monitor, Copy } from 'lucide-react';
 
 // ===== FEATURES PAGE =====
 export function FeaturesPage() {
@@ -493,15 +493,161 @@ export function TermsPage() {
 }
 
 // ===== DONATE PAGE =====
+import { useState } from 'react';
+import { launchUpiPayment, getDesktopPaymentOptions } from '../utils/payment';
+
+const FUNDRAISING_GOAL = 100000;
+const INITIAL_RAISED = 9870;
+
 export function DonatePage() {
+  const [amount, setAmount] = useState<number | ''>('');
+  const [showModal, setShowModal] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'pending' | 'desktop-fallback'>('idle');
+  const [upiLink, setUpiLink] = useState('');
+  const [desktopOptions, setDesktopOptions] = useState<{ label: string; url: string }[]>([]);
+  const raised = INITIAL_RAISED;
+  const remaining = FUNDRAISING_GOAL - raised;
+  const percentage = (raised / FUNDRAISING_GOAL) * 100;
+  const presets = [50, 100, 250, 500, 1000];
+
+  const handleDonate = () => {
+    if (!amount || amount <= 0) return;
+
+    // Attempt to launch UPI payment
+    const result = launchUpiPayment({ amount, transactionNote: 'TOM donation support' });
+    setUpiLink(result.link);
+
+    if (result.success && result.method === 'direct') {
+      // Mobile: UPI app launch was attempted
+      setShowModal(false);
+      setPaymentStatus('pending');
+    } else {
+      // Desktop or failed: show fallback options
+      setShowModal(false);
+      setPaymentStatus('desktop-fallback');
+      setDesktopOptions(getDesktopPaymentOptions(Number(amount)));
+    }
+  };
+
   return (
     <div className="pt-16">
-      <SEO title="Support TOM" description="Support TOM development. Donations fund testing hardware, model inference, documentation, research, and security." />
-      <PageHeader title="Support TOM" subtitle="Fund development." />
+      <SEO title="Donate to TOM" description="Support TOM's open-source development. Your donations fund testing hardware, model inference, documentation, research, and security improvements." />
+      <PageHeader title="Support TOM" subtitle="Help us build the future of open-source AI agents" />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
-        <div className="text-center py-8">
-          <Link to="/support" className="btn-primary"><Heart size={16} /> Donate</Link>
+        {/* Progress Card */}
+        <div className="card-elevated mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
+            <div>
+              <p className="text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">Fundraising Progress</p>
+              <p className="heading-sans text-4xl">₹{raised.toLocaleString('en-IN')}</p>
+              <p className="text-sm text-gray-500">raised of ₹{FUNDRAISING_GOAL.toLocaleString('en-IN')} goal</p>
+            </div>
+            <div className="text-right">
+              <p className="text-2xl font-bold text-black">{percentage.toFixed(2)}%</p>
+              <p className="text-sm text-gray-500">₹{remaining.toLocaleString('en-IN')} remaining</p>
+            </div>
+          </div>
+          <div className="progress-bar">
+            <div className="progress-fill" style={{ width: `${percentage}%` }} />
+          </div>
+          <p className="text-xs text-gray-400 mt-3">₹{INITIAL_RAISED.toLocaleString('en-IN')} is the owner-provided initial display value. Totals update only from trusted confirmed records.</p>
         </div>
+
+        {/* How donations help */}
+        <SectionHeading>How Donations Support TOM</SectionHeading>
+        <div className="grid sm:grid-cols-2 gap-3 mb-8">
+          {['Testing hardware (Android devices, GPUs)', 'Model inference resources for benchmarks', 'Documentation and tutorials', 'Research time and publication', 'Website and community hosting', 'Security audits and hardening'].map((item, i) => (
+            <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+              <Check size={14} className="text-green-600 flex-shrink-0" />
+              <span className="text-sm text-gray-700">{item}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Donate Button */}
+        <div className="text-center py-8">
+          <button onClick={() => setShowModal(true)} className="btn-primary !text-lg !px-8 !py-4">
+            <Heart size={18} /> Donate to TOM
+          </button>
+        </div>
+
+        {/* Donation Modal */}
+        {showModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setShowModal(false)}>
+            <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+              <h3 className="heading-sans text-2xl mb-2">Choose Amount</h3>
+              <p className="text-sm text-gray-500 mb-6">Select a preset or enter a custom amount in INR.</p>
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                {presets.map(p => (
+                  <button key={p} onClick={() => setAmount(p)} className={`py-3 rounded-xl text-sm font-semibold transition-all ${amount === p ? 'bg-black text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+                    ₹{p.toLocaleString('en-IN')}
+                  </button>
+                ))}
+              </div>
+              <div className="relative mb-6">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">₹</span>
+                <input type="number" value={amount} onChange={e => setAmount(e.target.value ? Number(e.target.value) : '')} placeholder="Custom amount" className="w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-black" min="1" max="100000" />
+              </div>
+              {amount && amount > 0 && (
+                <div className="bg-gray-50 rounded-xl p-4 mb-4">
+                  <p className="text-sm text-gray-600">Amount: <strong>₹{Number(amount).toLocaleString('en-IN')}</strong></p>
+                  <p className="text-xs text-gray-400 mt-1">Purpose: TOM development support</p>
+                </div>
+              )}
+              <button onClick={handleDonate} disabled={!amount || amount <= 0} className="btn-primary w-full disabled:opacity-40 disabled:cursor-not-allowed">
+                Pay ₹{amount ? Number(amount).toLocaleString('en-IN') : '0'}
+              </button>
+              <p className="text-xs text-gray-400 text-center mt-3">Payment via UPI. Receipt issued only after verified confirmation.</p>
+              <button onClick={() => setShowModal(false)} className="btn-ghost w-full mt-2 justify-center">Cancel</button>
+            </div>
+          </div>
+        )}
+
+        {/* Payment Status - Mobile pending */}
+        {paymentStatus === 'pending' && (
+          <div className="card-elevated text-center py-8">
+            <div className="w-12 h-12 border-3 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4" />
+            <h3 className="heading-sans text-xl mb-2">Awaiting Payment Confirmation</h3>
+            <p className="text-sm text-gray-500 mb-4">Your UPI app should have opened. Complete the payment there.</p>
+            <p className="text-xs text-gray-400 mb-4">Opening a UPI app does not confirm payment. Totals update only after verified backend confirmation.</p>
+            {upiLink && (
+              <a href={upiLink} className="btn-secondary inline-flex text-sm">
+                <Smartphone size={14} /> Retry UPI App
+              </a>
+            )}
+          </div>
+        )}
+
+        {/* Payment Status - Desktop fallback */}
+        {paymentStatus === 'desktop-fallback' && (
+          <div className="card-elevated py-8">
+            <div className="text-center mb-6">
+              <Monitor size={32} className="text-gray-400 mx-auto mb-3" />
+              <h3 className="heading-sans text-xl mb-2">Complete Your Donation</h3>
+              <p className="text-sm text-gray-500">UPI apps are typically available on mobile devices. Choose an option below:</p>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3 px-6">
+              {desktopOptions.map((opt, i) => (
+                <a key={i} href={opt.url} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                  {opt.label === 'Copy UPI Link' ? <Copy size={16} /> : <Smartphone size={16} />}
+                  <div>
+                    <p className="font-semibold text-sm text-black">{opt.label}</p>
+                    <p className="text-xs text-gray-500">{opt.label === 'Copy UPI Link' ? 'Use in any UPI app' : 'Open in installed app'}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+            <div className="text-center mt-6 px-6">
+              <p className="text-xs text-gray-400">Or scan a QR code with any UPI app from your phone. Amount: <strong>₹{Number(amount).toLocaleString('en-IN')}</strong></p>
+              <p className="text-xs text-gray-400 mt-2">Payment confirmation requires backend verification. Opening an app does not confirm payment.</p>
+            </div>
+          </div>
+        )}
+
+        <InfoBox variant="info">
+          <strong>Transparency:</strong> We do not invent payment receipts, tax-deductibility claims, or financial records. Donation totals update only from verified confirmed transactions. Card details are never stored in frontend code.
+        </InfoBox>
       </div>
     </div>
   );

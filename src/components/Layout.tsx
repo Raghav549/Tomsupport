@@ -10,6 +10,7 @@ const navItems = [
   { label: 'Docs', href: '/docs' },
   { label: 'Community', href: '/community' },
   { label: 'Roadmap', href: '/roadmap' },
+  { label: 'Donate', href: '/donate' },
 ];
 
 export function Navigation() {
@@ -122,7 +123,7 @@ export function Footer() {
             <ul className="space-y-2.5 text-sm">
               <li><Link to="/community" className="text-gray-600 hover:text-black transition-colors">Community</Link></li>
               <li><Link to="/contribute" className="text-gray-600 hover:text-black transition-colors">Contribute</Link></li>
-              <li><Link to="/support" className="text-gray-600 hover:text-black transition-colors">Support TOM</Link></li>
+              <li><Link to="/donate" className="text-gray-600 hover:text-black transition-colors">Donate</Link></li>
               <li><Link to="/contact" className="text-gray-600 hover:text-black transition-colors">Contact</Link></li>
             </ul>
           </div>
