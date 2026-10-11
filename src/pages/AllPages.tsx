@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PageHeader, SectionHeading, InfoBox, StatusBadge, CodeBlock, DemoLabel, ArchitectureDiagram } from '../components/Layout';
 import { WolfLogo, WolfMark } from '../components/WolfLogo';
-import { ArrowRight, ExternalLink, Github, Heart, Check, Copy, Download, MessageCircle } from 'lucide-react';
+import { ArrowRight, ExternalLink, Github, Heart, Check, Copy, Download, MessageCircle, Smartphone, Monitor, QrCode } from 'lucide-react';
+import { launchUpiPayment, getDesktopPaymentOptions, buildWhatsAppLink } from '../utils/payment';
+import { generateRegistrationPDF } from '../utils/pdfGenerator';
 
 // ===== DONATION / SUPPORT PAGE =====
 const FUNDRAISING_GOAL = 100000;
@@ -11,7 +13,9 @@ const INITIAL_RAISED = 9870;
 export function SupportPage() {
   const [amount, setAmount] = useState<number | ''>('');
   const [showModal, setShowModal] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'pending' | 'success'>('idle');
+  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'pending' | 'desktop-fallback'>('idle');
+  const [upiLink, setUpiLink] = useState('');
+  const [desktopOptions, setDesktopOptions] = useState<{ label: string; url: string }[]>([]);
   const raised = INITIAL_RAISED;
   const remaining = FUNDRAISING_GOAL - raised;
   const percentage = (raised / FUNDRAISING_GOAL) * 100;
@@ -19,14 +23,21 @@ export function SupportPage() {
 
   const handleDonate = () => {
     if (!amount || amount <= 0) return;
-    setShowModal(false);
-    setPaymentStatus('pending');
-    // In production, this would initiate UPI handoff via configured backend
-  };
 
-  const generateUpiLink = (amt: number) => {
-    const params = new URLSearchParams({ pa: encodeURIComponent('raghavkashyap2229@oksbi'), pn: 'TOM Project', am: amt.toString(), cu: 'INR', tn: 'TOM donation support' });
-    return `upi://pay?${params.toString()}`;
+    // Attempt to launch UPI payment
+    const result = launchUpiPayment({ amount, transactionNote: 'TOM donation support' });
+    setUpiLink(result.link);
+
+    if (result.success && result.method === 'direct') {
+      // Mobile: UPI app launch was attempted
+      setShowModal(false);
+      setPaymentStatus('pending');
+    } else {
+      // Desktop or failed: show fallback options
+      setShowModal(false);
+      setPaymentStatus('desktop-fallback');
+      setDesktopOptions(getDesktopPaymentOptions(Number(amount)));
+    }
   };
 
   return (
@@ -102,13 +113,45 @@ export function SupportPage() {
           </div>
         )}
 
-        {/* Payment Status */}
+        {/* Payment Status - Mobile pending */}
         {paymentStatus === 'pending' && (
           <div className="card-elevated text-center py-8">
             <div className="w-12 h-12 border-3 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4" />
             <h3 className="heading-sans text-xl mb-2">Awaiting Payment Confirmation</h3>
-            <p className="text-sm text-gray-500 mb-4">Your payment is being processed. Totals update only after trusted backend confirmation.</p>
-            <p className="text-xs text-gray-400">If your UPI app opened, complete the payment there. You can optionally submit a reference for manual verification.</p>
+            <p className="text-sm text-gray-500 mb-4">Your UPI app should have opened. Complete the payment there.</p>
+            <p className="text-xs text-gray-400 mb-4">Opening a UPI app does not confirm payment. Totals update only after verified backend confirmation.</p>
+            {upiLink && (
+              <a href={upiLink} className="btn-secondary inline-flex text-sm">
+                <Smartphone size={14} /> Retry UPI App
+              </a>
+            )}
+          </div>
+        )}
+
+        {/* Payment Status - Desktop fallback */}
+        {paymentStatus === 'desktop-fallback' && (
+          <div className="card-elevated py-8">
+            <div className="text-center mb-6">
+              <Monitor size={32} className="text-gray-400 mx-auto mb-3" />
+              <h3 className="heading-sans text-xl mb-2">Complete Your Donation</h3>
+              <p className="text-sm text-gray-500">UPI apps are typically available on mobile devices. Choose an option below:</p>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3 px-6">
+              {desktopOptions.map((opt, i) => (
+                <a key={i} href={opt.url} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                  {opt.label === 'Copy UPI Link' ? <Copy size={16} /> : <Smartphone size={16} />}
+                  <div>
+                    <p className="font-semibold text-sm text-black">{opt.label}</p>
+                    <p className="text-xs text-gray-500">{opt.label === 'Copy UPI Link' ? 'Use in any UPI app' : 'Open in installed app'}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+            <div className="text-center mt-6 px-6">
+              <p className="text-xs text-gray-400">Or scan a QR code with any UPI app from your phone. Amount: <strong>₹{Number(amount).toLocaleString('en-IN')}</strong></p>
+              <p className="text-xs text-gray-400 mt-2">Payment confirmation requires backend verification. Opening an app does not confirm payment.</p>
+            </div>
           </div>
         )}
 
@@ -152,10 +195,41 @@ export function CommunityJoinPage() {
 
   const copyToken = () => { navigator.clipboard.writeText(token); };
 
+  const handleDownloadPDF = () => {
+    // Generate a professionally designed PDF with all registration data
+    const registrationData = {
+      firstName: formData.firstName,
+      surname: formData.surname,
+      email: formData.email,
+      country: formData.country,
+      state: formData.state,
+      city: formData.city,
+      language: formData.language,
+      interests: formData.interests,
+      skills: formData.skills,
+      experience: formData.experience,
+      contribution: formData.contribution,
+      github: formData.github,
+      portfolio: formData.portfolio,
+      participation: formData.participation,
+      token: token,
+      date: new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }),
+    };
+    generateRegistrationPDF(registrationData);
+  };
+
+  // Build WhatsApp link with correct international format (+91 country code)
+  const whatsappMessage = `Hi, I have completed my TOM community registration.\n\nName: ${formData.firstName} ${formData.surname}\nToken: ${token}\n\nPlease find my registration PDF attached.`;
+  const whatsappLink = buildWhatsAppLink(whatsappMessage);
+
   if (completed) {
     return (
       <div className="pt-16">
-        <div className="max-w-lg mx-auto px-4 py-20 text-center">
+        <div className="max-w-lg mx-auto px-4 py-16 text-center">
+          {/* Wolf branding */}
+          <div className="mb-6">
+            <WolfLogo size={56} className="text-black mx-auto" />
+          </div>
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <Check size={28} className="text-green-600" />
           </div>
@@ -163,8 +237,12 @@ export function CommunityJoinPage() {
           <p className="text-gray-500 mb-8">Download your PDF and follow the steps below to complete your registration.</p>
 
           <div className="space-y-3 mb-8">
-            <button className="btn-primary w-full"><Download size={16} /> Download Registration PDF</button>
-            <button onClick={copyToken} className="btn-secondary w-full"><Copy size={16} /> Copy Registration Token</button>
+            <button onClick={handleDownloadPDF} className="btn-primary w-full">
+              <Download size={16} /> Download Registration PDF
+            </button>
+            <button onClick={copyToken} className="btn-secondary w-full">
+              <Copy size={16} /> Copy Registration Token
+            </button>
           </div>
 
           <div className="bg-gray-50 rounded-2xl p-6 text-left mb-8">
@@ -187,10 +265,22 @@ export function CommunityJoinPage() {
             ))}
           </div>
 
-          <a href={`https://wa.me/9693747328?text=${encodeURIComponent('Hi, I have completed my TOM community registration. Please find my PDF and token attached.')}`} target="_blank" rel="noopener noreferrer" className="btn-primary w-full !bg-green-600 hover:!bg-green-700">
+          <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="btn-primary w-full !bg-green-600 hover:!bg-green-700">
             <MessageCircle size={18} /> Continue on WhatsApp
           </a>
-          <p className="text-xs text-gray-400 mt-4">Sending the PDF/token is a registration-review step, not proof of membership approval. Attach the PDF manually in WhatsApp.</p>
+          <p className="text-xs text-gray-400 mt-4">Sending the PDF/token is a registration-review step, not proof of membership approval. Attach the downloaded PDF manually in WhatsApp.</p>
+
+          {/* Applicant summary */}
+          <div className="mt-8 text-left bg-gray-50 rounded-2xl p-5">
+            <p className="text-xs font-mono text-gray-400 uppercase tracking-wider mb-3">Registration Summary</p>
+            <div className="space-y-1.5 text-sm">
+              <p><span className="text-gray-500">Name:</span> <span className="text-black font-medium">{formData.firstName} {formData.surname}</span></p>
+              <p><span className="text-gray-500">Email:</span> <span className="text-black">{formData.email}</span></p>
+              {formData.country && <p><span className="text-gray-500">Location:</span> <span className="text-black">{[formData.city, formData.state, formData.country].filter(Boolean).join(', ')}</span></p>}
+              {formData.interests.length > 0 && <p><span className="text-gray-500">Interests:</span> <span className="text-black">{formData.interests.join(', ')}</span></p>}
+              <p><span className="text-gray-500">Date:</span> <span className="text-black">{new Date().toLocaleDateString('en-IN')}</span></p>
+            </div>
+          </div>
         </div>
       </div>
     );
