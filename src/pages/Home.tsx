@@ -401,7 +401,7 @@ export default function HomePage() {
           <p className="text-gray-400 text-lg mb-8 max-w-xl mx-auto">TOM is open source and evolving. Explore the code, contribute, or support development.</p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link to="/docs/quick-start" className="btn-primary !bg-white !text-black hover:!bg-gray-100">Get Started</Link>
-            <Link to="/support" className="btn-secondary !border-white/20 !text-white hover:!bg-white/10"><Heart size={16} /> Support TOM</Link>
+            <Link to="/donate" className="btn-secondary !border-white/20 !text-white hover:!bg-white/10"><Heart size={16} /> Donate</Link>
             <a href="https://github.com/Raghav509/TOM" target="_blank" rel="noopener noreferrer" className="btn-secondary !border-white/20 !text-white hover:!bg-white/10"><Github size={16} /> GitHub</a>
           </div>
         </div>
