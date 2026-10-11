@@ -3,7 +3,8 @@ import { Layout } from './components/Layout';
 import HomePage from './pages/Home';
 import AboutPage from './pages/About';
 import CapabilitiesPage from './pages/Capabilities';
-import { SupportPage, CommunityJoinPage, ResearchPage, DocsPage, RoadmapPage, CommunityPage, ContributePage, FAQPage, ContactPage, SecurityPage, GitHubPage, ApiReferencePage } from './pages/AllPages';
+import { SupportPage as AllPagesSupportPage, CommunityJoinPage, ResearchPage, DocsPage, RoadmapPage, CommunityPage, ContributePage, FAQPage, ContactPage, SecurityPage as AllPagesSecurityPage, GitHubPage, ApiReferencePage } from './pages/AllPages';
+import { FeaturesPage, HowItWorksPage, ArchitecturePage, LocalAIPage, OllamaQwenPage, VoiceTTsPage, BrowserAutomationPage, AndroidAutomationPage, ToolRegistryPage, VerificationPage, SecurityPage, MemoryPage, InstallationPage, TutorialsPage, ExamplesPage, BenchmarksPage, ResearchPapersPage, ChangelogPage, ContributingPage, SupportPage, LicensePage, PrivacyPage, TermsPage, DonatePage } from './pages/NewPages';
 
 function NotFoundPage() {
   return (
@@ -50,6 +51,34 @@ export default function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/security" element={<SecurityPage />} />
           <Route path="/github" element={<GitHubPage />} />
+          
+          {/* New comprehensive pages */}
+          <Route path="/features" element={<FeaturesPage />} />
+          <Route path="/how-it-works" element={<HowItWorksPage />} />
+          <Route path="/architecture" element={<ArchitecturePage />} />
+          <Route path="/local-ai" element={<LocalAIPage />} />
+          <Route path="/ollama-qwen" element={<OllamaQwenPage />} />
+          <Route path="/voice-tts" element={<VoiceTTsPage />} />
+          <Route path="/browser-automation" element={<BrowserAutomationPage />} />
+          <Route path="/android-automation" element={<AndroidAutomationPage />} />
+          <Route path="/tool-registry" element={<ToolRegistryPage />} />
+          <Route path="/verification" element={<VerificationPage />} />
+          <Route path="/security" element={<SecurityPage />} />
+          <Route path="/memory" element={<MemoryPage />} />
+          <Route path="/security-info" element={<AllPagesSecurityPage />} />
+          <Route path="/support-legacy" element={<AllPagesSupportPage />} />
+          <Route path="/docs/installation" element={<InstallationPage />} />
+          <Route path="/docs/tutorials" element={<TutorialsPage />} />
+          <Route path="/docs/examples" element={<ExamplesPage />} />
+          <Route path="/research/papers" element={<ResearchPapersPage />} />
+          <Route path="/changelog" element={<ChangelogPage />} />
+          <Route path="/contributing" element={<ContributingPage />} />
+          <Route path="/support" element={<SupportPage />} />
+          <Route path="/license" element={<LicensePage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/donate" element={<DonatePage />} />
+          
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Layout>
